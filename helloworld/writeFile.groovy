@@ -1,5 +1,5 @@
-def srcFile = new File("E:\\groovy_factory\\000.txt")
-def targetFile = new File ("E:\\groovy_factory\\111.txt")
+def srcFile = new File("000.txt")
+def targetFile = new File ("111.txt")
 targetFile.withOutputStream { os ->
     srcFile.withInputStream { ins ->
         os << ins

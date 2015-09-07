@@ -1,7 +1,7 @@
 import groovy.util.slurpersupport.GPathResult
 
 def xparser = new XmlSlurper()
-def targetFile = new File('E:\\groovy_factory\\test0.xml')
+def targetFile = new File('test0.xml')
 
 GPathResult gpathResult = xparser.parse(targetFile)
 
@@ -12,7 +12,7 @@ assert author.text() == 'Manuel De Cervantes'
 author.@id == '4'
 author.@id.toInteger() == 4
 
-GPathResult androidManifestResult = new XmlSlurper().parse('E:\\groovy_factory\\AndroidManifest.xml')
+GPathResult androidManifestResult = new XmlSlurper().parse('AndroidManifest.xml')
 println androidManifestResult['@android:versionName']
 println androidManifestResult.@'android:versionName'
 println androidManifestResult.application.@'android:icon'

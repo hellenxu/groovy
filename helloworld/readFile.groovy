@@ -1,4 +1,4 @@
-def targetFile = new File('E:\\groovy_factory\\test.groovy')
+def targetFile = new File('test.groovy')
 targetFile.eachLine {
     String oneLine ->
     println oneLine
