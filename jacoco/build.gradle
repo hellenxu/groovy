@@ -1,0 +1,80 @@
+apply plugin: 'com.android.application'
+
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
+    defaultConfig {
+        applicationId 'com.netease.logindemo'
+        minSdkVersion 8
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.2.1"
+//        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner 'com.netease.loginapi.JUnitJacocoTestRunner'
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            testCoverageEnabled true
+        }
+    }
+    packagingOptions {
+        exclude('LICENSE.txt')
+    }
+}
+
+apply plugin: 'jacoco'
+jacoco {
+    toolVersion "0.7.4.201502262128"
+}
+
+task jacocoTestReport(type:JacocoReport, dependsOn: "connectedAndroidTest") {
+    group = "Reporting"
+
+    description = "Generate Jacoco coverage reports"
+
+    // exclude auto-generated classes and tests
+    def fileFilter = ['**/R.class', '**/R$*.class'
+                      , '**/Manifest*.*',
+                      '**/BuildConfig.*',
+                      'android/**/*.*',
+                        'com/netease/logindemo/**/*.*',
+                        'com/netease/jsbridge/**/*.*',
+                        'com/netease/loginapi/ui/*.*',
+                        'com/netease/loginapi/util/LogWatcherUtils.class']
+    def debugTree = fileTree(dir:
+            "${project.buildDir}/intermediates/classes/debug",
+            excludes: fileFilter)
+
+    def mainSrc = "${project.projectDir}/src/main/java"
+
+    sourceDirectories = files([mainSrc])
+    classDirectories = files([debugTree])
+    additionalSourceDirs = files([
+            "${buildDir}/generated/source/buildConfig/debug",
+            "${buildDir}/generated/source/r/debug"
+    ])
+    executionData = fileTree(dir: project.projectDir, includes:
+            ['**/*.exec', '**/*.ec'])
+
+    reports {
+        xml.enabled = true
+        xml.destination = "${buildDir}/jacocoTestReport.xml"
+        csv.enabled = false
+        html.enabled = true
+        html.destination = "${buildDir}/reports/jacoco"
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    //Test only
+    testCompile 'junit:junit:4.12'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2'
+    androidTestCompile 'com.android.support.test:runner:0.3'
+}
