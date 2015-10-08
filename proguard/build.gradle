@@ -1,0 +1,120 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion '21.1.2'
+    defaultConfig {
+        minSdkVersion 8
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+    }
+
+    packagingOptions {
+        exclude 'LICENSE.txt'
+    }
+
+    buildTypes {
+        debug {
+            testCoverageEnabled true
+        }
+    }
+}
+
+task makeJarWithoutProguard(type: Jar) {
+    from "${project.buildDir}/intermediates/classes/release/"
+    exclude '**/BuildConfig.class', '**/R.class', '**/R$*.class', '**/R.html', '**/R.*.html', '**/OneActivity.class'
+    archiveName 'testlib.jar'
+    extension 'jar'
+}
+
+task deleteJar(type: Delete) {
+    delete "${project.buildDir}/libs/testlib.jar"
+}
+
+makeJarWithoutProguard.dependsOn(deleteJar, ['compileReleaseJava'])
+
+
+task makeJarWithProguard(dependsOn: ['makeJarWithoutProguard'], type: proguard.gradle.ProGuardTask) {
+    configuration android.getDefaultProguardFile('proguard-android.txt')
+    configuration 'proguard-rules.pro'
+
+    String inJar = makeJarWithoutProguard.archivePath.getAbsolutePath()
+    injars inJar
+    outjars inJar.substring(0, inJar.lastIndexOf('\\')) + "/proguard-${makeJarWithoutProguard.archiveName}"
+
+    dontshrink
+
+    Plugin plugin = getPlugins().hasPlugin('com.android.application') ?
+            getPlugins().findPlugin('com.android.application') :
+            getPlugins().findPlugin('com.android.library')
+    if (plugin != null) {
+        List<String> runtimeJarList
+        if (plugin.getMetaClass().getMetaMethod("getRuntimeJarList")) {
+            runtimeJarList = plugin.getRuntimeJarList()
+        } else if (android.getMetaClass().getMetaMethod("getBootClasspath")) {
+            runtimeJarList = android.getBootClasspath()
+        } else {
+            runtimeJarList = plugin.getBootClasspath()
+        }
+
+        for (String runtimeJar : runtimeJarList) {
+            libraryjars(runtimeJar)
+        }
+    }
+}
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+    androidTestCompile 'com.android.support.test:runner:0.3'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2'
+}
+
+//android.libraryVariants.all { variant ->
+//    task("generate${variant.name}Javadoc", type: Javadoc) {
+//        description "Generates Javadoc for $variant.name."
+//        source = variant.javaCompile.source
+//        ext.androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+//        classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
+//    }
+//
+//    task("javadoc${variant.name}", type: Jar) {
+//        classifier = "javadoc"
+//        description "Bundles Javadoc into a JAR file for $variant.name."
+//        from tasks["generate${variant.name}Javadoc"]
+//
+//    }
+//    task("jar${variant.name}", type: Jar) {
+//        description "Bundles compiled .class files into a JAR file for $variant.name."
+//        dependsOn variant.javaCompile
+//        from variant.javaCompile.destinationDir
+//        exclude '**/R.class', '**/R$*.class', '**/R.html', '**/R.*.html'
+//    }
+//}
+/*using java plugin*/
+//apply plugin: 'java'
+//task initTestJar(type: Jar){
+//    from 'build/classes/main/com/six/testlib/'
+//    into 'com/six/'
+//}
+//initTestJar.dependsOn(build)
+
+/*using android plugin*/
+
+//apply plugin: 'com.android.library'
+//
+
+//
+//task makeJar(type: Copy) {
+//    from('build/intermediates/bundles/release/')
+//    into('build/libs/')
+//    include('classes.jar')
+//    rename('classes.jar', 'testlib.jar')
+//}
+//
+//task clearJar(type: Delete){
+//    delete 'build/libs/testlib.jar'
+//}
+//
+//makeJar.dependsOn(clearJar, build)
