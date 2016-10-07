@@ -43,10 +43,10 @@ task jacocoTestReport(type:JacocoReport, dependsOn: "connectedAndroidTest") {
                       , '**/Manifest*.*',
                       '**/BuildConfig.*',
                       'android/**/*.*',
-                        'com/netease/logindemo/**/*.*',
-                        'com/netease/jsbridge/**/*.*',
-                        'com/netease/loginapi/ui/*.*',
-                        'com/netease/loginapi/util/LogWatcherUtils.class']
+                        'com/six/logindemo/**/*.*',
+                        'com/six/jsbridge/**/*.*',
+                        'com/six/loginapi/ui/*.*',
+                        'com/six/loginapi/util/LogWatcherUtils.class']
     def debugTree = fileTree(dir:
             "${project.buildDir}/intermediates/classes/debug",
             excludes: fileFilter)
